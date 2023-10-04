@@ -65,7 +65,7 @@ export default function Code() {
               {isLoading ? (
                 <Dna height="30" width="30" ariaLabel="dna-loading" />
               ) : (
-                "Submit"
+                "Generate"
               )}
             </Button>
           </form>

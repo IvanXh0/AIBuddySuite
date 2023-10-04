@@ -14,7 +14,7 @@ export default function Navbar() {
           <p className="text-xl font-bold text-zinc-200">
             Welcome, {user.firstName}
           </p>
-          <UserButton />
+          <UserButton afterSignOutUrl="/" />
         </div>
       ) : (
         <div className="p-5 rounded-lg">

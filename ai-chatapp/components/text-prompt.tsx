@@ -43,11 +43,11 @@ export default function TextPrompt() {
   };
 
   return (
-    <div className="flex flex-col items-center rounded-lg bg-zinc-600 w-full h-full p-24 mt-12 ">
+    <div className="flex flex-col items-center rounded-lg bg-transparent border border-violet-600 w-full h-full p-24 mt-12 ">
       {isSignedIn ? (
         <>
-          <h3 className="text-3xl font-bold bg-gradient-to-r from-red-400 via-blue-500 to-purple-600 bg-clip-text text-transparent">
-            Tell me about your day!
+          <h3 className="text-2xl font-bold text-zinc-800 bg-clip-text text-transparent">
+            So.. what's on your mind {user.firstName}?
           </h3>
           <div className="flex flex-col mt-12 h-full  max-w-[750px] ">
             <form
@@ -55,7 +55,7 @@ export default function TextPrompt() {
               onSubmit={handleSubmit}
             >
               <Textarea
-                placeholder="Start talking please.."
+                placeholder="Ex: I had a horrible day today, can you lighten me up?"
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 className="p-10 text-md w-[750px]"

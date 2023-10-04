@@ -20,7 +20,7 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en">
-        <body className={cn("bg-slate-200", inter.className)}>
+        <body className={cn("bg-violet-100", inter.className)}>
           <Navbar />
           {children}
         </body>

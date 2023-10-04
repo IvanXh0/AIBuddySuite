@@ -3,25 +3,55 @@
 import Link from "next/link";
 import { Button } from "./ui/button";
 import { UserButton, useUser } from "@clerk/nextjs";
+import { usePathname } from "next/navigation";
+
+const routes = [
+  {
+    name: "Home",
+    href: "/",
+  },
+  {
+    name: "Chat",
+    href: "/chat",
+  },
+  {
+    name: "Code",
+    href: "/code",
+  },
+  {
+    name: "Image Generation",
+    href: "/image-generation",
+  },
+];
 
 export default function Navbar() {
   const { isSignedIn, user } = useUser();
+  const pathname = usePathname();
 
   return (
-    <div className="flex align-end justify-end bg-zinc-600">
+    <div className="flex justify-between items-center bg-zinc-900 p-5">
+      <div className="flex space-x-4 text-slate-300">
+        {routes.map((route) => (
+          <Link
+            className={pathname === route.href ? "text-violet-400" : ""}
+            key={route.name}
+            href={route.href}
+          >
+            {route.name}
+          </Link>
+        ))}
+      </div>
       {isSignedIn ? (
-        <div className="p-5 rounded-lg flex flex-row gap-4">
-          <p className="text-xl font-bold text-zinc-200">
+        <div className="flex items-center space-x-4">
+          <p className="hidden md:block text-lg font-semibold text-zinc-300">
             Welcome, {user.firstName}
           </p>
           <UserButton afterSignOutUrl="/" />
         </div>
       ) : (
-        <div className="p-5 rounded-lg">
-          <Link href="/sign-in">
-            <Button variant="secondary">Login</Button>
-          </Link>
-        </div>
+        <Link href="/sign-in">
+          <Button variant="secondary">Login</Button>
+        </Link>
       )}
     </div>
   );

@@ -14,8 +14,7 @@ export async function POST(req: Request) {
 
     const customPrompt: ChatCompletionRequestMessage = {
       role: "system",
-      content:
-        "You're a code generator. You must reply using markdown code while adding comments to the code you generate. You shouldn't respond to promps that are not related to coding.",
+      content: "You're a code generator. Write short and concise code.",
     };
 
     if (!configuration.apiKey) {

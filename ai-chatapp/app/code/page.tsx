@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { UserAvatar } from "@/components/user-avatar";
 import { cn } from "@/lib/utils";
 import axios from "axios";
-import { Divide } from "lucide-react";
 import { ChatCompletionRequestMessage } from "openai";
 import React, { useState } from "react";
 import { Dna } from "react-loader-spinner";

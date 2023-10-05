@@ -12,6 +12,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
+    "types": ["node", "jest", "@testing-library/jest-dom"],
     "incremental": true,
     "plugins": [
       {
@@ -27,7 +28,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "__tests__/Navbar.spec.js"
+    "__tests__/Navbar.spec.ts"
   ],
   "exclude": ["node_modules"]
 }

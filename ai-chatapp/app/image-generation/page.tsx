@@ -1,22 +1,16 @@
 "use client";
 
-import { BotAvatar } from "@/components/bot-avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { UserAvatar } from "@/components/user-avatar";
-import { cn } from "@/lib/utils";
-import { useUser } from "@clerk/nextjs";
 import axios from "axios";
 import Image from "next/image";
-import { ChatCompletionRequestMessage } from "openai";
 import React, { useState } from "react";
 import { Dna } from "react-loader-spinner";
 
-export default function Chat() {
+export default function ImageGeneration() {
   const [prompt, setPrompt] = useState<string>("");
   const [images, setImages] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const { user } = useUser();
 
   const handleSubmit = async (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();

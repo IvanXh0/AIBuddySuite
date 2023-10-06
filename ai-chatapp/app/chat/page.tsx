@@ -56,6 +56,7 @@ export default function Chat() {
               onChange={(e) => setPrompt(e.target.value)}
               className="p-4 sm:p-6 text-md w-full "
               disabled={isLoading}
+              data-testid="input-element"
             />
             <Button
               disabled={isLoading || !prompt}
@@ -73,6 +74,7 @@ export default function Chat() {
             {messages.map((message, idx) => (
               <div
                 key={idx}
+                data-testid="message-element"
                 className={cn(
                   "p-3 sm:p-4 w-full flex items-start gap-2 sm:gap-4 rounded-lg",
                   message.role === "user"

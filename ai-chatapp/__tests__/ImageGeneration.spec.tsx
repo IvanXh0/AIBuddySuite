@@ -18,8 +18,8 @@ mock
     { url: "https://example.com/image2.jpg" },
   ]);
 
-describe("Chat component", () => {
-  it("renders the Chat component", () => {
+describe("Image Generation component", () => {
+  it("renders the ImageGeneration component", () => {
     render(<ImageGeneration />);
   });
 
@@ -36,6 +36,7 @@ describe("Chat component", () => {
     render(<ImageGeneration />);
     const button = screen.getByText("Generate");
     fireEvent.click(button);
+    expect(button).toBeDisabled();
   });
 
   it("displays images after form submission", async () => {

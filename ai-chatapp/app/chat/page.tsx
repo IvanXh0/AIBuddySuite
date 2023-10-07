@@ -8,14 +8,29 @@ import { cn } from "@/lib/utils";
 import { useUser } from "@clerk/nextjs";
 import axios from "axios";
 import { ChatCompletionRequestMessage } from "openai";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Dna } from "react-loader-spinner";
+import useChatStore, { Prompt } from "@/store/ChatStore";
 
 export default function Chat() {
   const [prompt, setPrompt] = useState<string>("");
-  const [messages, setMessages] = useState<ChatCompletionRequestMessage[]>([]);
+  const [messages, setMessages] = useState<
+    ChatCompletionRequestMessage[] | Prompt[]
+  >([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { user } = useUser();
+  const { prompts, addPrompt, savePromptsToLocalStorage, clearPrompts } =
+    useChatStore();
+
+  useEffect(() => {
+    const storedPrompts = localStorage.getItem("chatPrompts");
+
+    if (storedPrompts) {
+      const parsedPrompts = JSON.parse(storedPrompts);
+
+      setMessages(parsedPrompts);
+    }
+  }, []);
 
   const handleSubmit = async (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -33,7 +48,10 @@ export default function Chat() {
         messages: newMessages,
       });
 
+      addPrompt([userMessage, response.data]);
+      savePromptsToLocalStorage();
       setMessages((current) => [...current, userMessage, response.data]);
+
       setPrompt("");
     } catch (error) {
       console.error(error);
@@ -87,6 +105,20 @@ export default function Chat() {
               </div>
             ))}
           </div>
+          {messages.length > 0 && (
+            <div className="flex items-center justify-center">
+              <Button
+                variant="outline"
+                className="mt-4 p-3 w-[12rem] bg-red-500 hover:bg-black/30"
+                onClick={() => {
+                  setMessages([]);
+                  clearPrompts();
+                }}
+              >
+                Clear History
+              </Button>
+            </div>
+          )}
         </div>
       </>
     </div>

@@ -19,8 +19,7 @@ export default function Chat() {
   >([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { user } = useUser();
-  const { prompts, addPrompt, savePromptsToLocalStorage, clearPrompts } =
-    useChatStore();
+  const { addPrompt, savePromptsToLocalStorage, clearPrompts } = useChatStore();
 
   useEffect(() => {
     const storedPrompts = localStorage.getItem("chatPrompts");

@@ -4,13 +4,25 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import axios from "axios";
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Dna } from "react-loader-spinner";
+import useImageStore from "@/store/ImageStore";
 
 export default function ImageGeneration() {
   const [prompt, setPrompt] = useState<string>("");
   const [images, setImages] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { addPrompt, savePromptsToLocalStorage, clearPrompts } =
+    useImageStore();
+
+  useEffect(() => {
+    const storedPrompts = localStorage.getItem("imagePrompts");
+
+    if (storedPrompts) {
+      const parsedPrompts = JSON.parse(storedPrompts);
+      setImages(parsedPrompts);
+    }
+  }, []);
 
   const handleSubmit = async (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -28,6 +40,8 @@ export default function ImageGeneration() {
       );
 
       setImages(imageUrls);
+      addPrompt(imageUrls);
+      savePromptsToLocalStorage();
 
       setPrompt("");
     } catch (error) {
@@ -83,6 +97,20 @@ export default function ImageGeneration() {
               </div>
             ))}
           </div>
+          {images.length > 0 && (
+            <div className="flex items-center justify-center">
+              <Button
+                variant="outline"
+                className="mt-4 p-3 w-[12rem] bg-red-500 hover:bg-black/30"
+                onClick={() => {
+                  setImages([]);
+                  clearPrompts();
+                }}
+              >
+                Clear History
+              </Button>
+            </div>
+          )}
         </div>
       </>
     </div>

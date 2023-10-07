@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Button } from "./ui/button";
 import { UserButton, useUser } from "@clerk/nextjs";
 import { usePathname } from "next/navigation";
+import { useEffect } from "react";
 
 const routes = [
   {
@@ -27,6 +28,22 @@ const routes = [
 export default function Navbar() {
   const { isSignedIn, user } = useUser();
   const pathname = usePathname();
+
+  const noUser = !isSignedIn && pathname !== "/sign-in";
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (noUser) {
+        localStorage.removeItem("chatPrompts");
+        localStorage.removeItem("codePrompts");
+        localStorage.removeItem("imagePrompts");
+      }
+    }, 2000);
+
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [noUser]);
 
   return (
     <div className="flex justify-between items-center bg-zinc-900 p-5">

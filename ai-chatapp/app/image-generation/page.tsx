@@ -10,23 +10,22 @@ import useImageStore from "@/store/ImageStore";
 
 export default function ImageGeneration() {
   const [prompt, setPrompt] = useState<string>("");
-  const [images, setImages] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const { addPrompt, savePromptsToLocalStorage, clearPrompts } =
-    useImageStore();
+  const {
+    prompts,
+    setPrompts,
+    addPrompt,
+    savePromptsToLocalStorage,
+    clearPrompts,
+  } = useImageStore();
 
   useEffect(() => {
-    const storedPrompts = localStorage.getItem("imagePrompts");
-
-    if (storedPrompts) {
-      const parsedPrompts = JSON.parse(storedPrompts);
-      setImages(parsedPrompts);
-    }
+    setPrompts();
   }, []);
 
   const handleSubmit = async (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setImages([]);
+    clearPrompts();
 
     try {
       setIsLoading(true);
@@ -39,7 +38,6 @@ export default function ImageGeneration() {
         (image: { url: string }) => image.url
       );
 
-      setImages(imageUrls);
       addPrompt(imageUrls);
       savePromptsToLocalStorage();
 
@@ -78,11 +76,11 @@ export default function ImageGeneration() {
               )}
             </Button>
           </form>
-          <div className="flex flex-col items-center gap-4 sm:gap-6 mt-4 sm:mt-6">
-            {images.map((image, idx) => (
+          <div className="flex flex-col md:flex-row md:justify-between items-center gap-4 sm:gap-6 mt-4 sm:mt-6">
+            {prompts.map((imageUrl, idx) => (
               <div className="flex flex-col items-center " key={idx}>
                 <Image
-                  src={image}
+                  src={imageUrl}
                   width={300}
                   height={300}
                   alt="generated image"
@@ -90,20 +88,19 @@ export default function ImageGeneration() {
                 <Button
                   variant="default"
                   className="p-3 sm:p-6 mt-2 sm:mt-4 text-md"
-                  onClick={() => window.open(image, "_blank")}
+                  onClick={() => window.open(imageUrl, "_blank")}
                 >
                   Download Image
                 </Button>
               </div>
             ))}
           </div>
-          {images.length > 0 && (
-            <div className="flex items-center justify-center">
+          {prompts.length > 0 && (
+            <div className="flex items-center justify-center p-5">
               <Button
                 variant="outline"
-                className="mt-4 p-3 w-[12rem] bg-red-500 hover:bg-black/30"
+                className=" p-3 w-[12rem] bg-red-500 hover:bg-black/30"
                 onClick={() => {
-                  setImages([]);
                   clearPrompts();
                 }}
               >

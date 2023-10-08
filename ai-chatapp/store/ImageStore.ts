@@ -1,23 +1,28 @@
-import { ChatCompletionRequestMessage } from "openai";
 import { create } from "zustand";
 
-export interface Prompt {
-  imageUrl: string;
-}
-
 interface ImageStore {
-  prompts: Prompt[];
-  addPrompt: (prompts: Prompt[]) => void;
+  prompts: string[];
+  addPrompt: (prompts: string[]) => void;
+  setPrompts: () => void;
   clearPrompts: () => void;
   savePromptsToLocalStorage: () => void;
 }
 
 const useImageStore = create<ImageStore>((set) => ({
   prompts: [],
-  addPrompt: (prompts) => {
+  addPrompt: (prompt) => {
     set((state) => ({
-      prompts: [...state.prompts, ...prompts],
+      prompts: [...state.prompts, ...prompt],
     }));
+  },
+  setPrompts: () => {
+    const prompts = localStorage.getItem("imagePrompts");
+
+    if (prompts) {
+      const parsedPrompts = JSON.parse(prompts);
+
+      set({ prompts: parsedPrompts });
+    }
   },
   clearPrompts: () => {
     set({ prompts: [] });

@@ -10,25 +10,22 @@ import axios from "axios";
 import { ChatCompletionRequestMessage } from "openai";
 import React, { useEffect, useState } from "react";
 import { Dna } from "react-loader-spinner";
-import useChatStore, { Prompt } from "@/store/ChatStore";
+import useChatStore from "@/store/ChatStore";
 
 export default function Chat() {
   const [prompt, setPrompt] = useState<string>("");
-  const [messages, setMessages] = useState<
-    ChatCompletionRequestMessage[] | Prompt[]
-  >([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { user } = useUser();
-  const { addPrompt, savePromptsToLocalStorage, clearPrompts } = useChatStore();
+  const {
+    prompts,
+    addPrompt,
+    savePromptsToLocalStorage,
+    clearPrompts,
+    setPrompts,
+  } = useChatStore();
 
   useEffect(() => {
-    const storedPrompts = localStorage.getItem("chatPrompts");
-
-    if (storedPrompts) {
-      const parsedPrompts = JSON.parse(storedPrompts);
-
-      setMessages(parsedPrompts);
-    }
+    setPrompts();
   }, []);
 
   const handleSubmit = async (event: React.SyntheticEvent<HTMLFormElement>) => {
@@ -41,15 +38,12 @@ export default function Chat() {
         content: prompt,
       };
 
-      const newMessages = [...messages, userMessage];
-
       const response = await axios.post("/api/chatbot", {
-        messages: newMessages,
+        messages: [...prompts, userMessage],
       });
 
       addPrompt([userMessage, response.data]);
-      savePromptsToLocalStorage();
-      setMessages((current) => [...current, userMessage, response.data]);
+      savePromptsToLocalStorage([...prompts, userMessage, response.data]);
 
       setPrompt("");
     } catch (error) {
@@ -88,7 +82,7 @@ export default function Chat() {
             </Button>
           </form>
           <div className="flex flex-col-reverse gap-2 sm:gap-4 mt-4 sm:mt-6">
-            {messages.map((message, idx) => (
+            {prompts.map((message, idx) => (
               <div
                 key={idx}
                 data-testid="message-element"
@@ -104,13 +98,12 @@ export default function Chat() {
               </div>
             ))}
           </div>
-          {messages.length > 0 && (
+          {prompts.length > 0 && (
             <div className="flex items-center justify-center">
               <Button
                 variant="outline"
                 className="mt-4 p-3 w-[12rem] bg-red-500 hover:bg-black/30"
                 onClick={() => {
-                  setMessages([]);
                   clearPrompts();
                 }}
               >

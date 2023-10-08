@@ -14,17 +14,17 @@ import useCodeStore from "@/store/CodeStore";
 
 export default function Code() {
   const [prompt, setPrompt] = useState<string>("");
-  const [messages, setMessages] = useState<ChatCompletionRequestMessage[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const { addPrompt, savePromptsToLocalStorage, clearPrompts } = useCodeStore();
+  const {
+    prompts,
+    setPrompts,
+    addPrompt,
+    savePromptsToLocalStorage,
+    clearPrompts,
+  } = useCodeStore();
 
   useEffect(() => {
-    const storedPrompts = localStorage.getItem("codePrompts");
-
-    if (storedPrompts) {
-      const parsedPrompts = JSON.parse(storedPrompts);
-      setMessages(parsedPrompts);
-    }
+    setPrompts();
   }, []);
 
   const handleSubmit = async (event: React.SyntheticEvent<HTMLFormElement>) => {
@@ -37,16 +37,13 @@ export default function Code() {
         content: prompt,
       };
 
-      const newMessages = [...messages, userMessage];
-
       const response = await axios.post("/api/codebot", {
-        messages: newMessages,
+        messages: [...prompts, userMessage],
       });
 
       addPrompt([userMessage, response.data]);
-      savePromptsToLocalStorage();
+      savePromptsToLocalStorage([...prompts, userMessage, response.data]);
 
-      setMessages((current) => [...current, userMessage, response.data]);
       setPrompt("");
     } catch (error) {
       console.error(error);
@@ -83,7 +80,7 @@ export default function Code() {
             </Button>
           </form>
           <div className="flex flex-col-reverse gap-2 sm:gap-4 mt-4 sm:mt-6">
-            {messages.map((message, idx) => (
+            {prompts.map((message, idx) => (
               <div
                 key={idx}
                 className={cn(
@@ -112,13 +109,12 @@ export default function Code() {
               </div>
             ))}
           </div>
-          {messages.length > 0 && (
+          {prompts.length > 0 && (
             <div className="flex items-center justify-center">
               <Button
                 variant="outline"
                 className="mt-4 p-3 w-[12rem] bg-red-500 hover:bg-black/30"
                 onClick={() => {
-                  setMessages([]);
                   clearPrompts();
                 }}
               >

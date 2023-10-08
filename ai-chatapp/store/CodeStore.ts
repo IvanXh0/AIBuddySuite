@@ -11,8 +11,9 @@ export interface Prompt {
 interface CodeStore {
   prompts: Prompt[];
   addPrompt: (prompts: Prompt[]) => void;
+  setPrompts: () => void;
   clearPrompts: () => void;
-  savePromptsToLocalStorage: () => void;
+  savePromptsToLocalStorage: (prompts: Prompt[]) => void;
 }
 
 const useCodeStore = create<CodeStore>((set) => ({
@@ -22,18 +23,20 @@ const useCodeStore = create<CodeStore>((set) => ({
       prompts: [...state.prompts, ...prompts],
     }));
   },
+  setPrompts: () => {
+    const prompts = localStorage.getItem("codePrompts");
+
+    if (prompts) {
+      const parsedPrompts = JSON.parse(prompts);
+      set({ prompts: parsedPrompts });
+    }
+  },
   clearPrompts: () => {
     set({ prompts: [] });
 
     localStorage.removeItem("codePrompts");
   },
-  savePromptsToLocalStorage: () => {
-    const storedPrompts = localStorage.getItem("codePrompts");
-
-    const existingPrompts = storedPrompts ? JSON.parse(storedPrompts) : [];
-
-    const prompts = [...existingPrompts, ...useCodeStore.getState().prompts];
-
+  savePromptsToLocalStorage: (prompts) => {
     localStorage.setItem("codePrompts", JSON.stringify(prompts));
   },
 }));

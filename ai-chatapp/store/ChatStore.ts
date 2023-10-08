@@ -11,8 +11,9 @@ export interface Prompt {
 interface ChatStore {
   prompts: Prompt[];
   addPrompt: (prompts: Prompt[]) => void;
+  setPrompts: () => void;
   clearPrompts: () => void;
-  savePromptsToLocalStorage: () => void;
+  savePromptsToLocalStorage: (prompts: Prompt[]) => void;
 }
 
 const useChatStore = create<ChatStore>((set) => ({
@@ -27,13 +28,16 @@ const useChatStore = create<ChatStore>((set) => ({
 
     localStorage.removeItem("chatPrompts");
   },
-  savePromptsToLocalStorage: () => {
-    const storedPrompts = localStorage.getItem("chatPrompts");
+  setPrompts: () => {
+    const prompts = localStorage.getItem("chatPrompts");
 
-    const existingPrompts = storedPrompts ? JSON.parse(storedPrompts) : [];
+    if (prompts) {
+      const parsedPrompts = JSON.parse(prompts);
 
-    const prompts = [...existingPrompts, ...useChatStore.getState().prompts];
-
+      set({ prompts: parsedPrompts });
+    }
+  },
+  savePromptsToLocalStorage: (prompts) => {
     localStorage.setItem("chatPrompts", JSON.stringify(prompts));
   },
 }));

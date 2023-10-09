@@ -5,6 +5,8 @@
 import React from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
 import Navbar from "@/components/navbar";
+import { usePathname } from "next/navigation";
+import { useRouter } from "next/router";
 
 jest.mock("@clerk/nextjs", () => ({
   useUser: () => ({
@@ -17,6 +19,10 @@ jest.mock("next/router", () => ({
   useRouter: () => ({
     push: jest.fn(),
   }),
+}));
+
+jest.mock("next/navigation", () => ({
+  usePathname: jest.fn(() => "/"),
 }));
 
 const routes = ["Home", "Chat", "Code", "Image Generation"];
@@ -45,6 +51,14 @@ describe("Navbar component", () => {
 
     fireEvent.click(chatElement);
 
-    expect(require("next/router").useRouter().push("/sign-in"));
+    expect(usePathname).toHaveBeenCalled();
+  });
+
+  it("renders the login button when not signed in", () => {
+    render(<Navbar />);
+
+    const loginElement = screen.getByText("Login");
+
+    expect(loginElement).toBeInTheDocument();
   });
 });

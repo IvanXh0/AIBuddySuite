@@ -12,7 +12,15 @@ import React, { useEffect, useState } from "react";
 import { Dna } from "react-loader-spinner";
 import useChatStore from "@/store/ChatStore";
 
+type ApiResponseMessages = {
+  id: string;
+  role: string;
+  content: string;
+  email: string;
+};
+
 export default function Chat() {
+  const [messages, setMessages] = useState<ApiResponseMessages[]>([]);
   const [prompt, setPrompt] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { user } = useUser();
@@ -24,8 +32,17 @@ export default function Chat() {
     setPrompts,
   } = useChatStore();
 
+  const getMessagesFromBE = async () => {
+    const res = await axios.get("http://localhost:8080/chatbot/user-chats", {
+      params: {
+        userEmail: user?.primaryEmailAddress?.emailAddress,
+      },
+    });
+    setMessages(res.data);
+  };
+
   useEffect(() => {
-    setPrompts();
+    getMessagesFromBE();
   }, []);
 
   const handleSubmit = async (event: React.SyntheticEvent<HTMLFormElement>) => {
@@ -42,9 +59,17 @@ export default function Chat() {
         messages: [...prompts, userMessage],
       });
 
+      const userEmail = user?.primaryEmailAddress?.emailAddress;
+
       const requestData = {
-        userMessage,
-        responseData: response.data,
+        userMessage: {
+          ...userMessage,
+          email: userEmail,
+        },
+        responseData: {
+          ...response.data,
+          email: userEmail,
+        },
       };
 
       const localApiResponse = await axios.post(
@@ -56,6 +81,8 @@ export default function Chat() {
 
       addPrompt([userMessage, response.data]);
       savePromptsToLocalStorage([...prompts, userMessage, response.data]);
+
+      getMessagesFromBE();
 
       setPrompt("");
     } catch (error) {
@@ -93,23 +120,25 @@ export default function Chat() {
               )}
             </Button>
           </form>
-          <div className="flex flex-col-reverse gap-2 sm:gap-4 mt-4 sm:mt-6">
-            {prompts.map((message, idx) => (
-              <div
-                key={idx}
-                data-testid="message-element"
-                className={cn(
-                  "p-3 sm:p-4 w-full flex items-start gap-2 sm:gap-4 rounded-lg",
-                  message.role === "user"
-                    ? "bg-white border border-black/10"
-                    : "bg-zinc-900 border border-black/10 text-white"
-                )}
-              >
-                {message.role === "user" ? <UserAvatar /> : <BotAvatar />}
-                {message.content}
-              </div>
-            ))}
-          </div>
+          {messages && (
+            <div className="flex flex-col-reverse gap-2 sm:gap-4 mt-4 sm:mt-6">
+              {messages.map((message, idx) => (
+                <div
+                  key={idx}
+                  data-testid="message-element"
+                  className={cn(
+                    "p-3 sm:p-4 w-full flex items-start gap-2 sm:gap-4 rounded-lg",
+                    message.role === "user"
+                      ? "bg-white border border-black/10"
+                      : "bg-zinc-900 border border-black/10 text-white"
+                  )}
+                >
+                  {message.role === "user" ? <UserAvatar /> : <BotAvatar />}
+                  {message.content}
+                </div>
+              ))}
+            </div>
+          )}
           {prompts.length > 0 && (
             <div className="flex items-center justify-center">
               <Button

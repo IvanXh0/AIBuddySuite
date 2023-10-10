@@ -54,6 +54,10 @@ func main() {
 		return routes.GetChats(c, client)
 	})
 
+	app.Get("/chatbot/user-chats", func(c *fiber.Ctx) error {
+		return routes.GetUserChats(c, client)
+	})
+
 	app.Post("/chatbot", func(c *fiber.Ctx) error {
 		return routes.CreateChat(c, client)
 	})

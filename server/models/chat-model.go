@@ -1,6 +1,7 @@
 package models
 
 type Chat struct {
-	Role    string `json:"role"`
-	Content string `json:"content"`
+	Role      string `json:"role"`
+	Content   string `json:"content"`
+	UserEmail string `json:"email"`
 }

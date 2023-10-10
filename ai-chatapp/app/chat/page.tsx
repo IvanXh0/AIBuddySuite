@@ -42,6 +42,18 @@ export default function Chat() {
         messages: [...prompts, userMessage],
       });
 
+      const requestData = {
+        userMessage,
+        responseData: response.data,
+      };
+
+      const localApiResponse = await axios.post(
+        "http://localhost:8080/chatbot",
+        requestData
+      );
+
+      console.log(localApiResponse);
+
       addPrompt([userMessage, response.data]);
       savePromptsToLocalStorage([...prompts, userMessage, response.data]);
 

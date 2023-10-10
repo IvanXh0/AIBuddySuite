@@ -3,7 +3,7 @@
  */
 
 import React from "react";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import Navbar from "@/components/navbar";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/router";
@@ -44,12 +44,16 @@ describe("Navbar component", () => {
     });
   });
 
-  it("redirects you to /sign-in if you are not signed in", () => {
+  it("redirects you to /sign-in if you are not signed in", async () => {
     render(<Navbar />);
 
     const chatElement = screen.getByText("Chat");
 
     fireEvent.click(chatElement);
+
+    await waitFor(() => {
+      expect(usePathname).toHaveBeenCalled();
+    });
 
     expect(usePathname).toHaveBeenCalled();
   });

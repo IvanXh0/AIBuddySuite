@@ -74,9 +74,6 @@ export default function Chat() {
 
       await axios.post("http://localhost:8080/chatbot", requestData);
 
-      addPrompt([userMessage, response.data]);
-      savePromptsToLocalStorage([...prompts, userMessage, response.data]);
-
       getMessagesFromBE();
 
       setPrompt("");
@@ -134,7 +131,7 @@ export default function Chat() {
               ))}
             </div>
           )}
-          {prompts.length > 0 && (
+          {messages.length > 0 && (
             <div className="flex items-center justify-center">
               <Button
                 variant="outline"

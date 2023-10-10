@@ -13,7 +13,7 @@ import { Dna } from "react-loader-spinner";
 import useChatStore from "@/store/ChatStore";
 
 type ApiResponseMessages = {
-  id: string;
+  _id: string;
   role: string;
   content: string;
   email: string;
@@ -42,8 +42,8 @@ export default function Chat() {
   };
 
   useEffect(() => {
-    getMessagesFromBE();
-  }, []);
+    if (user) getMessagesFromBE();
+  }, [user]);
 
   const handleSubmit = async (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -72,12 +72,7 @@ export default function Chat() {
         },
       };
 
-      const localApiResponse = await axios.post(
-        "http://localhost:8080/chatbot",
-        requestData
-      );
-
-      console.log(localApiResponse);
+      await axios.post("http://localhost:8080/chatbot", requestData);
 
       addPrompt([userMessage, response.data]);
       savePromptsToLocalStorage([...prompts, userMessage, response.data]);
@@ -122,9 +117,9 @@ export default function Chat() {
           </form>
           {messages && (
             <div className="flex flex-col-reverse gap-2 sm:gap-4 mt-4 sm:mt-6">
-              {messages.map((message, idx) => (
+              {messages.map((message) => (
                 <div
-                  key={idx}
+                  key={message._id}
                   data-testid="message-element"
                   className={cn(
                     "p-3 sm:p-4 w-full flex items-start gap-2 sm:gap-4 rounded-lg",

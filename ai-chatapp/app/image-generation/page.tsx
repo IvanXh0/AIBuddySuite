@@ -115,7 +115,7 @@ export default function ImageGeneration() {
                   <div className="image-container" key={idx}>
                     <div className="shadow-lg transition transform hover:scale-105">
                       <Image
-                        //@ts-ignore - NextImage bug where the src is a string but still comes up as an error
+                        //@ts-expect-error: 2322 - NextImage bug where the src is a string but still comes up as an error
                         src={image}
                         width={300}
                         height={300}

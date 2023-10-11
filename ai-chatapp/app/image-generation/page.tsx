@@ -7,21 +7,40 @@ import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { Dna } from "react-loader-spinner";
 import useImageStore from "@/store/ImageStore";
+import { useUser } from "@clerk/nextjs";
+import { ApiImageResponse } from "@/lib/ApiImageResponse.type";
 
 export default function ImageGeneration() {
   const [prompt, setPrompt] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const {
-    prompts,
-    setPrompts,
-    addPrompt,
-    savePromptsToLocalStorage,
-    clearPrompts,
-  } = useImageStore();
+  const [images, setImages] = useState<ApiImageResponse[]>([]);
+  const { user } = useUser();
+  const { prompts, clearPrompts } = useImageStore();
+
+  const getImagesFromBE = async () => {
+    const res = await axios.get(
+      "http://localhost:8080/api/imagebot/user-images",
+      {
+        params: {
+          userEmail: user?.primaryEmailAddress?.emailAddress,
+        },
+      }
+    );
+    if (res.data) {
+      setImages(
+        res.data.flatMap(
+          (image: { imageurls: ApiImageResponse["imageurls"][] }) =>
+            image.imageurls
+        )
+      );
+    } else {
+      setImages([]);
+    }
+  };
 
   useEffect(() => {
-    setPrompts();
-  }, []);
+    if (user) getImagesFromBE();
+  }, [user]);
 
   const handleSubmit = async (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -38,8 +57,16 @@ export default function ImageGeneration() {
         (image: { url: string }) => image.url
       );
 
-      addPrompt(imageUrls);
-      savePromptsToLocalStorage();
+      const userEmail = user?.primaryEmailAddress?.emailAddress;
+
+      const imageData = {
+        imageUrls,
+        userEmail,
+      };
+
+      await axios.post("http://localhost:8080/api/imagebot", imageData);
+
+      getImagesFromBE();
 
       setPrompt("");
     } catch (error) {
@@ -76,26 +103,26 @@ export default function ImageGeneration() {
               )}
             </Button>
           </form>
-          <div className="flex flex-col md:flex-row md:justify-between items-center gap-4 sm:gap-6 mt-4 sm:mt-6">
-            {prompts.map((imageUrl, idx) => (
-              <div className="flex flex-col items-center " key={idx}>
-                <Image
-                  src={imageUrl}
-                  width={300}
-                  height={300}
-                  alt="generated image"
-                />
-                <Button
-                  variant="default"
-                  className="p-3 sm:p-6 mt-2 sm:mt-4 text-md"
-                  onClick={() => window.open(imageUrl, "_blank")}
-                >
-                  Download Image
-                </Button>
+          {images && (
+            <div className="container mx-auto mt-4 p-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {images.map((image, idx) => (
+                  <div className="image-container" key={idx}>
+                    <div className="shadow-lg transition transform hover:scale-105">
+                      <Image
+                        src={image}
+                        width={300}
+                        height={300}
+                        alt="generated image"
+                        className="w-full h-auto rounded-lg"
+                      />
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-          {prompts.length > 0 && (
+            </div>
+          )}
+          {images.length > 0 && (
             <div className="flex items-center justify-center p-5">
               <Button
                 variant="outline"

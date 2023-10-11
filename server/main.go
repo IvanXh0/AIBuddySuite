@@ -69,6 +69,14 @@ func main() {
 		return routes.CreateCodes(c, client)
 	})
 
+	api.Get("/imagebot/user-images", func(c *fiber.Ctx) error {
+		return routes.GetUserImage(c, client)
+	})
+
+	api.Post("/imagebot", func(c *fiber.Ctx) error {
+		return routes.CreateImage(c, client)
+	})
+
 	log.Printf("Listening on port %s\n", port)
 
 	log.Fatal(app.Listen(":" + port))

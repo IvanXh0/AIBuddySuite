@@ -11,8 +11,8 @@ import (
 )
 
 type CodeRequest struct {
-	UserMessage  models.Chat `json:"userMessage"`
-	ResponseData models.Chat `json:"responseData"`
+	UserMessage  models.Code `json:"userMessage"`
+	ResponseData models.Code `json:"responseData"`
 	UserEmail    string      `json:"userEmail"`
 }
 

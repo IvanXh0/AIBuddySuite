@@ -16,14 +16,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/recover"
 )
 
-type Post struct {
-	Title string
-	Body  string
-	Email string
-}
-
 func main() {
-
 	app := fiber.New()
 
 	app.Use(logger.New())
@@ -40,7 +33,7 @@ func main() {
 	client, err := db.InitializeMongoDB()
 
 	if err != nil {
-		log.Fatal("Failed to connect to mongodb", err)
+		log.Fatal("Failed to connect to MongoDB", err)
 	}
 
 	defer client.Disconnect(context.Background())
@@ -50,20 +43,33 @@ func main() {
 		port = "3000"
 	}
 
-	app.Get("/chatbot", func(c *fiber.Ctx) error {
+	api := app.Group("/api") // Define a group with the "/api" prefix
+
+	api.Get("/chatbot", func(c *fiber.Ctx) error {
 		return routes.GetChats(c, client)
 	})
 
-	app.Get("/chatbot/user-chats", func(c *fiber.Ctx) error {
+	api.Get("/chatbot/user-chats", func(c *fiber.Ctx) error {
 		return routes.GetUserChats(c, client)
 	})
 
-	app.Post("/chatbot", func(c *fiber.Ctx) error {
+	api.Post("/chatbot", func(c *fiber.Ctx) error {
 		return routes.CreateChat(c, client)
+	})
+
+	api.Get("/codebot", func(c *fiber.Ctx) error {
+		return routes.GetCode(c, client)
+	})
+
+	api.Get("/codebot/user-codes", func(c *fiber.Ctx) error {
+		return routes.GetUserCodes(c, client)
+	})
+
+	api.Post("/codebot", func(c *fiber.Ctx) error {
+		return routes.CreateCodes(c, client)
 	})
 
 	log.Printf("Listening on port %s\n", port)
 
 	log.Fatal(app.Listen(":" + port))
-
 }

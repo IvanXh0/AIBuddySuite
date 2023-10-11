@@ -11,21 +11,31 @@ import React, { useEffect, useState } from "react";
 import { Dna } from "react-loader-spinner";
 import ReactMarkdown from "react-markdown";
 import useCodeStore from "@/store/CodeStore";
+import { useUser } from "@clerk/nextjs";
+import { ApiResponseMessages } from "@/lib/ApiResponseMessage.type";
 
 export default function Code() {
   const [prompt, setPrompt] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const {
-    prompts,
-    setPrompts,
-    addPrompt,
-    savePromptsToLocalStorage,
-    clearPrompts,
-  } = useCodeStore();
+  const [codes, setCodes] = useState<ApiResponseMessages[]>([]);
+  const { user } = useUser();
+  const { prompts, clearPrompts } = useCodeStore();
+
+  const getCodesFromBE = async () => {
+    const res = await axios.get(
+      "http://localhost:8080/api/codebot/user-codes",
+      {
+        params: {
+          userEmail: user?.primaryEmailAddress?.emailAddress,
+        },
+      }
+    );
+    setCodes(res.data);
+  };
 
   useEffect(() => {
-    setPrompts();
-  }, []);
+    if (user) getCodesFromBE();
+  }, [user]);
 
   const handleSubmit = async (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -41,8 +51,22 @@ export default function Code() {
         messages: [...prompts, userMessage],
       });
 
-      addPrompt([userMessage, response.data]);
-      savePromptsToLocalStorage([...prompts, userMessage, response.data]);
+      const userEmail = user?.primaryEmailAddress?.emailAddress;
+
+      const requestData = {
+        userMessage: {
+          ...userMessage,
+          email: userEmail,
+        },
+        responseData: {
+          ...response.data,
+          email: userEmail,
+        },
+      };
+
+      await axios.post("http://localhost:8080/api/codebot", requestData);
+
+      getCodesFromBE();
 
       setPrompt("");
     } catch (error) {
@@ -79,37 +103,42 @@ export default function Code() {
               )}
             </Button>
           </form>
-          <div className="flex flex-col-reverse gap-2 sm:gap-4 mt-4 sm:mt-6">
-            {prompts.map((message, idx) => (
-              <div
-                key={idx}
-                className={cn(
-                  "p-3 sm:p-4 w-full flex items-start gap-2 sm:gap-4 rounded-lg",
-                  message.role === "user"
-                    ? "bg-white border border-black/10"
-                    : "bg-zinc-900 border border-black/10 text-white"
-                )}
-              >
-                {message.role === "user" ? <UserAvatar /> : <BotAvatar />}
-                <ReactMarkdown
-                  components={{
-                    pre: ({ node, ...props }) => (
-                      <div className="overflow-auto w-full my-2 p-2 bg-white/10 rounded-lg">
-                        <pre {...props} />
-                      </div>
-                    ),
-                    code: ({ node, ...props }) => (
-                      <code className="bg-black/10 rounded-lg p-1" {...props} />
-                    ),
-                  }}
-                  className="overflow-hidden text-sm leading-7"
+          {codes && (
+            <div className="flex flex-col-reverse gap-2 sm:gap-4 mt-4 sm:mt-6">
+              {codes.map((message, idx) => (
+                <div
+                  key={message._id}
+                  className={cn(
+                    "p-3 sm:p-4 w-full flex items-start gap-2 sm:gap-4 rounded-lg",
+                    message.role === "user"
+                      ? "bg-white border border-black/10"
+                      : "bg-zinc-900 border border-black/10 text-white"
+                  )}
                 >
-                  {message.content || ""}
-                </ReactMarkdown>
-              </div>
-            ))}
-          </div>
-          {prompts.length > 0 && (
+                  {message.role === "user" ? <UserAvatar /> : <BotAvatar />}
+                  <ReactMarkdown
+                    components={{
+                      pre: ({ node, ...props }) => (
+                        <div className="overflow-auto w-full my-2 p-2 bg-white/10 rounded-lg">
+                          <pre {...props} />
+                        </div>
+                      ),
+                      code: ({ node, ...props }) => (
+                        <code
+                          className="bg-black/10 rounded-lg p-1"
+                          {...props}
+                        />
+                      ),
+                    }}
+                    className="overflow-hidden text-sm leading-7"
+                  >
+                    {message.content || ""}
+                  </ReactMarkdown>
+                </div>
+              ))}
+            </div>
+          )}
+          {codes && (
             <div className="flex items-center justify-center">
               <Button
                 variant="outline"

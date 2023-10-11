@@ -11,33 +11,24 @@ import { ChatCompletionRequestMessage } from "openai";
 import React, { useEffect, useState } from "react";
 import { Dna } from "react-loader-spinner";
 import useChatStore from "@/store/ChatStore";
-
-type ApiResponseMessages = {
-  _id: string;
-  role: string;
-  content: string;
-  email: string;
-};
+import { ApiResponseMessages } from "@/lib/ApiResponseMessage.type";
 
 export default function Chat() {
   const [messages, setMessages] = useState<ApiResponseMessages[]>([]);
   const [prompt, setPrompt] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { user } = useUser();
-  const {
-    prompts,
-    addPrompt,
-    savePromptsToLocalStorage,
-    clearPrompts,
-    setPrompts,
-  } = useChatStore();
+  const { prompts, clearPrompts } = useChatStore();
 
   const getMessagesFromBE = async () => {
-    const res = await axios.get("http://localhost:8080/chatbot/user-chats", {
-      params: {
-        userEmail: user?.primaryEmailAddress?.emailAddress,
-      },
-    });
+    const res = await axios.get(
+      "http://localhost:8080/api/chatbot/user-chats",
+      {
+        params: {
+          userEmail: user?.primaryEmailAddress?.emailAddress,
+        },
+      }
+    );
     setMessages(res.data);
   };
 
@@ -72,7 +63,7 @@ export default function Chat() {
         },
       };
 
-      await axios.post("http://localhost:8080/chatbot", requestData);
+      await axios.post("http://localhost:8080/api/chatbot", requestData);
 
       getMessagesFromBE();
 
@@ -131,7 +122,7 @@ export default function Chat() {
               ))}
             </div>
           )}
-          {messages.length > 0 && (
+          {messages && (
             <div className="flex items-center justify-center">
               <Button
                 variant="outline"

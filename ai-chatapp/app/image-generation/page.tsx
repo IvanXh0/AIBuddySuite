@@ -6,16 +6,14 @@ import axios from "axios";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { Dna } from "react-loader-spinner";
-import useImageStore from "@/store/ImageStore";
 import { useUser } from "@clerk/nextjs";
-import { ApiImageResponse } from "@/lib/ApiImageResponse.type";
+import { ApiImageResponse } from "@/lib/ApiImageResponse.interface";
 
 export default function ImageGeneration() {
   const [prompt, setPrompt] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [images, setImages] = useState<ApiImageResponse[]>([]);
   const { user } = useUser();
-  const { prompts, clearPrompts } = useImageStore();
 
   const getImagesFromBE = async () => {
     const res = await axios.get(
@@ -26,16 +24,24 @@ export default function ImageGeneration() {
         },
       }
     );
-    if (res.data) {
-      setImages(
-        res.data.flatMap(
-          (image: { imageurls: ApiImageResponse["imageurls"][] }) =>
-            image.imageurls
+
+    res.data
+      ? setImages(
+          res.data.flatMap(
+            (image: { imageurls: ApiImageResponse["imageurls"][] }) =>
+              image.imageurls
+          )
         )
-      );
-    } else {
-      setImages([]);
-    }
+      : setImages([]);
+  };
+
+  const deleteImageHistory = async () => {
+    await axios.delete("http://localhost:8080/api/imagebot", {
+      params: {
+        userEmail: user?.primaryEmailAddress?.emailAddress,
+      },
+    });
+    setImages([]);
   };
 
   useEffect(() => {
@@ -44,7 +50,6 @@ export default function ImageGeneration() {
 
   const handleSubmit = async (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
-    clearPrompts();
 
     try {
       setIsLoading(true);
@@ -110,6 +115,7 @@ export default function ImageGeneration() {
                   <div className="image-container" key={idx}>
                     <div className="shadow-lg transition transform hover:scale-105">
                       <Image
+                        //@ts-ignore - NextImage bug where the src is a string but still comes up as an error
                         src={image}
                         width={300}
                         height={300}
@@ -127,9 +133,7 @@ export default function ImageGeneration() {
               <Button
                 variant="outline"
                 className=" p-3 w-[12rem] bg-red-500 hover:bg-black/30"
-                onClick={() => {
-                  clearPrompts();
-                }}
+                onClick={() => deleteImageHistory()}
               >
                 Clear History
               </Button>

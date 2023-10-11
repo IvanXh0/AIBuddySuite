@@ -11,14 +11,14 @@ import { ChatCompletionRequestMessage } from "openai";
 import React, { useEffect, useState } from "react";
 import { Dna } from "react-loader-spinner";
 import useChatStore from "@/store/ChatStore";
-import { ApiResponseMessages } from "@/lib/ApiResponseMessage.type";
+import { ApiResponseMessages } from "@/lib/ApiResponseMessage.interface";
 
 export default function Chat() {
   const [messages, setMessages] = useState<ApiResponseMessages[]>([]);
   const [prompt, setPrompt] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { user } = useUser();
-  const { prompts, clearPrompts } = useChatStore();
+  const { prompts, clearPrompts, addPrompt } = useChatStore();
 
   const getMessagesFromBE = async () => {
     const res = await axios.get(
@@ -30,6 +30,15 @@ export default function Chat() {
       }
     );
     setMessages(res.data);
+  };
+
+  const deleteChatHistory = async () => {
+    await axios.delete("http://localhost:8080/api/chatbot", {
+      params: {
+        userEmail: user?.primaryEmailAddress?.emailAddress,
+      },
+    });
+    setMessages([]);
   };
 
   useEffect(() => {
@@ -66,6 +75,7 @@ export default function Chat() {
       await axios.post("http://localhost:8080/api/chatbot", requestData);
 
       getMessagesFromBE();
+      addPrompt([userMessage, response.data]);
 
       setPrompt("");
     } catch (error) {
@@ -128,6 +138,7 @@ export default function Chat() {
                 variant="outline"
                 className="mt-4 p-3 w-[12rem] bg-red-500 hover:bg-black/30"
                 onClick={() => {
+                  deleteChatHistory();
                   clearPrompts();
                 }}
               >

@@ -12,14 +12,14 @@ import { Dna } from "react-loader-spinner";
 import ReactMarkdown from "react-markdown";
 import useCodeStore from "@/store/CodeStore";
 import { useUser } from "@clerk/nextjs";
-import { ApiResponseMessages } from "@/lib/ApiResponseMessage.type";
+import { ApiResponseMessages } from "@/lib/ApiResponseMessage.interface";
 
 export default function Code() {
   const [prompt, setPrompt] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [codes, setCodes] = useState<ApiResponseMessages[]>([]);
   const { user } = useUser();
-  const { prompts, clearPrompts } = useCodeStore();
+  const { prompts, clearPrompts, addPrompt } = useCodeStore();
 
   const getCodesFromBE = async () => {
     const res = await axios.get(
@@ -31,6 +31,15 @@ export default function Code() {
       }
     );
     setCodes(res.data);
+  };
+
+  const deleteCodeHistory = async () => {
+    await axios.delete("http://localhost:8080/api/codebot", {
+      params: {
+        userEmail: user?.primaryEmailAddress?.emailAddress,
+      },
+    });
+    setCodes([]);
   };
 
   useEffect(() => {
@@ -67,6 +76,7 @@ export default function Code() {
       await axios.post("http://localhost:8080/api/codebot", requestData);
 
       getCodesFromBE();
+      addPrompt([userMessage, response.data]);
 
       setPrompt("");
     } catch (error) {
@@ -144,6 +154,7 @@ export default function Code() {
                 variant="outline"
                 className="mt-4 p-3 w-[12rem] bg-red-500 hover:bg-black/30"
                 onClick={() => {
+                  deleteCodeHistory();
                   clearPrompts();
                 }}
               >

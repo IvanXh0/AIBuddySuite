@@ -78,3 +78,19 @@ func CreateChat(c *fiber.Ctx, client *mongo.Client) error {
 
 	return c.SendStatus(fiber.StatusCreated)
 }
+
+func ClearChatHistory(c *fiber.Ctx, client *mongo.Client) error {
+	userEmail := c.Query("userEmail")
+
+	coll := client.Database("aibuddysuite").Collection("chatbot")
+
+	filter := bson.M{"useremail": userEmail}
+
+	_, err := coll.DeleteMany(context.TODO(), filter)
+
+	if err != nil {
+		return err
+	}
+
+	return c.SendStatus(fiber.StatusOK)
+}

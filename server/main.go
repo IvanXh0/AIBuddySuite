@@ -43,7 +43,7 @@ func main() {
 		port = "3000"
 	}
 
-	api := app.Group("/api") // Define a group with the "/api" prefix
+	api := app.Group("/api")
 
 	api.Get("/chatbot", func(c *fiber.Ctx) error {
 		return routes.GetChats(c, client)
@@ -55,6 +55,10 @@ func main() {
 
 	api.Post("/chatbot", func(c *fiber.Ctx) error {
 		return routes.CreateChat(c, client)
+	})
+
+	api.Delete("/chatbot", func(c *fiber.Ctx) error {
+		return routes.ClearChatHistory(c, client)
 	})
 
 	api.Get("/codebot", func(c *fiber.Ctx) error {
@@ -69,12 +73,20 @@ func main() {
 		return routes.CreateCodes(c, client)
 	})
 
+	api.Delete("/codebot", func(c *fiber.Ctx) error {
+		return routes.ClearCodeHistory(c, client)
+	})
+
 	api.Get("/imagebot/user-images", func(c *fiber.Ctx) error {
 		return routes.GetUserImage(c, client)
 	})
 
 	api.Post("/imagebot", func(c *fiber.Ctx) error {
 		return routes.CreateImage(c, client)
+	})
+
+	api.Delete("/imagebot", func(c *fiber.Ctx) error {
+		return routes.ClearImageHistory(c, client)
 	})
 
 	log.Printf("Listening on port %s\n", port)

@@ -34,7 +34,7 @@ export default function Code() {
   };
 
   const deleteCodeHistory = async () => {
-    await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/codebot}`, {
+    await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/codebot`, {
       params: {
         userEmail: user?.primaryEmailAddress?.emailAddress,
       },
@@ -74,7 +74,7 @@ export default function Code() {
       };
 
       await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/codebot}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/codebot`,
         requestData
       );
 

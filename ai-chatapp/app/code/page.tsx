@@ -23,7 +23,7 @@ export default function Code() {
 
   const getCodesFromBE = async () => {
     const res = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/chatbot/user-codes`,
+      `${process.env.NEXT_PUBLIC_API_URL}/codebot/user-codes`,
       {
         params: {
           userEmail: user?.primaryEmailAddress?.emailAddress,

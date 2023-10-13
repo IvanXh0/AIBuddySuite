@@ -1,34 +1,24 @@
 "use client";
-
 import TypewriterComponent from "typewriter-effect";
 
-export const Heading = () => {
+export default function Heading() {
   return (
-    <>
-      <div className="flex flex-col items-center justify-center">
-        <h1 className="text-3xl font-bold p-12 text-slate-100">
-          Welcome to{" "}
-          <span className="bg-gradient-to-r from-green-400 via-blue-500 to-purple-600 bg-clip-text text-transparent">
-            AIBuddySuite
-          </span>
-        </h1>
-      </div>
-      <div className="flex flex-col items-center">
-        <h3 className="text-3xl flex flex-col md:flex-row font-semibold p-5 text-slate-100 items-center text-center">
-          Your AI Companion For
-          <div className="md:ml-3">
-            <div className="bg-gradient-to-r from-green-400 via-blue-500 to-purple-600 bg-clip-text text-transparent">
-              <TypewriterComponent
-                options={{
-                  strings: ["Chatting", "Coding", "Image Generation"],
-                  autoStart: true,
-                  loop: true,
-                }}
-              />
-            </div>
-          </div>
-        </h3>
-      </div>
-    </>
+    <div className="text-center">
+      <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
+        Welcome to <span className="text-violet-400">AIBuddySuite</span>
+      </h1>
+      <p className="mt-6 text-lg leading-8 text-gray-600">
+        Your AI Companion For
+      </p>
+      <span className="text-violet-400 text-lg">
+        <TypewriterComponent
+          options={{
+            strings: ["Chatting", "Coding", "Image Generation"],
+            autoStart: true,
+            loop: true,
+          }}
+        />
+      </span>
+    </div>
   );
-};
+}

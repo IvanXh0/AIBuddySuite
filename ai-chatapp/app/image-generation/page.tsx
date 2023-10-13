@@ -8,6 +8,7 @@ import React, { useEffect, useState } from "react";
 import { Dna } from "react-loader-spinner";
 import { useUser } from "@clerk/nextjs";
 import { ApiImageResponse } from "@/lib/ApiImageResponse.interface";
+import ImagePlaceholder from "@/components/image-placeholder";
 
 export default function ImageGeneration() {
   const [prompt, setPrompt] = useState<string>("");

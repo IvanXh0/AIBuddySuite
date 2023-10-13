@@ -21,19 +21,16 @@ export default function Chat() {
   const { prompts, clearPrompts, addPrompt } = useChatStore();
 
   const getMessagesFromBE = async () => {
-    const res = await axios.get(
-      "http://localhost:8080/api/chatbot/user-chats",
-      {
-        params: {
-          userEmail: user?.primaryEmailAddress?.emailAddress,
-        },
-      }
-    );
+    const res = await axios.get(`${process.env.API_URL}/chatbot/user-chats`, {
+      params: {
+        userEmail: user?.primaryEmailAddress?.emailAddress,
+      },
+    });
     setMessages(res.data);
   };
 
   const deleteChatHistory = async () => {
-    await axios.delete("http://localhost:8080/api/chatbot", {
+    await axios.delete(`${process.env.API_URL}/chatbot`, {
       params: {
         userEmail: user?.primaryEmailAddress?.emailAddress,
       },
@@ -72,7 +69,7 @@ export default function Chat() {
         },
       };
 
-      await axios.post("http://localhost:8080/api/chatbot", requestData);
+      await axios.post(`${process.env.API_URL}/chatbot`, requestData);
 
       getMessagesFromBE();
       addPrompt([userMessage, response.data]);

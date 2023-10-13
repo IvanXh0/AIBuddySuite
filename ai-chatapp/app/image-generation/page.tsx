@@ -16,14 +16,11 @@ export default function ImageGeneration() {
   const { user } = useUser();
 
   const getImagesFromBE = async () => {
-    const res = await axios.get(
-      "http://localhost:8080/api/imagebot/user-images",
-      {
-        params: {
-          userEmail: user?.primaryEmailAddress?.emailAddress,
-        },
-      }
-    );
+    const res = await axios.get(`${process.env.API_URL}/imagebot/user-images`, {
+      params: {
+        userEmail: user?.primaryEmailAddress?.emailAddress,
+      },
+    });
 
     res.data
       ? setImages(
@@ -36,7 +33,7 @@ export default function ImageGeneration() {
   };
 
   const deleteImageHistory = async () => {
-    await axios.delete("http://localhost:8080/api/imagebot", {
+    await axios.delete(`${process.env.API_URL}/imagebot}`, {
       params: {
         userEmail: user?.primaryEmailAddress?.emailAddress,
       },
@@ -69,7 +66,7 @@ export default function ImageGeneration() {
         userEmail,
       };
 
-      await axios.post("http://localhost:8080/api/imagebot", imageData);
+      await axios.post(`${process.env.API_URL}/imagebot`, imageData);
 
       getImagesFromBE();
 

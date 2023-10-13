@@ -22,19 +22,16 @@ export default function Code() {
   const { prompts, clearPrompts, addPrompt } = useCodeStore();
 
   const getCodesFromBE = async () => {
-    const res = await axios.get(
-      "http://localhost:8080/api/codebot/user-codes",
-      {
-        params: {
-          userEmail: user?.primaryEmailAddress?.emailAddress,
-        },
-      }
-    );
+    const res = await axios.get(`${process.env.API_URL}/chatbot/user-codes`, {
+      params: {
+        userEmail: user?.primaryEmailAddress?.emailAddress,
+      },
+    });
     setCodes(res.data);
   };
 
   const deleteCodeHistory = async () => {
-    await axios.delete("http://localhost:8080/api/codebot", {
+    await axios.delete(`${process.env.API_URL}/codebot}`, {
       params: {
         userEmail: user?.primaryEmailAddress?.emailAddress,
       },
@@ -73,7 +70,7 @@ export default function Code() {
         },
       };
 
-      await axios.post("http://localhost:8080/api/codebot", requestData);
+      await axios.post(`${process.env.API_URL}/codebot}`, requestData);
 
       getCodesFromBE();
       addPrompt([userMessage, response.data]);

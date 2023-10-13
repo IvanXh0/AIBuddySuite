@@ -30,6 +30,11 @@ func sendGetRequest() {
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode == http.StatusOK {
+		fmt.Printf("Successful GET request: Status %d\n", resp.StatusCode)
+	} else {
+		fmt.Printf("Unsuccessful GET request: Status %d\n", resp.StatusCode)
+	}
 }
 
 func main() {
@@ -63,14 +68,15 @@ func main() {
 
 	router.RegisterApiRoutes(api, client)
 
-	log.Printf("Listening on port %s\n", port)
-
-	log.Fatal(app.Listen(":" + port))
+	go func() {
+		log.Printf("Listening on port %s\n", port)
+		log.Fatal(app.Listen(":" + port))
+	}()
 
 	sendGetRequest()
 
-	// Sending data every 10 minutes so the server doesnt shut down
-	ticker := time.NewTicker(10 * time.Minute)
+	// Sending data every 2 minutes so the server doesnt shut down
+	ticker := time.NewTicker(2 * time.Minute)
 	defer ticker.Stop()
 
 	for {

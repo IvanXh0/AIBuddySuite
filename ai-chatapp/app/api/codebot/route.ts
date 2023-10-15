@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import { ChatCompletionRequestMessage, Configuration, OpenAIApi } from "openai";
 
-export const runtime = "edge";
-export const maxDuration = 30;
+export const config = {
+  runtime: "edge",
+  maxDuration: 30,
+};
 
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,

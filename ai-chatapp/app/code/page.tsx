@@ -56,32 +56,47 @@ export default function Code() {
         content: prompt,
       };
 
-      const response = await axios.post("/api/codebot", {
+      const requestBody = JSON.stringify({
         messages: [...prompts, userMessage],
       });
 
-      const userEmail = user?.primaryEmailAddress?.emailAddress;
-
-      const requestData = {
-        userMessage: {
-          ...userMessage,
-          email: userEmail,
+      const response = await fetch("/api/codebot", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-        responseData: {
-          ...response.data,
-          email: userEmail,
-        },
-      };
+        body: requestBody,
+      });
 
-      await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/codebot`,
-        requestData
-      );
+      if (response.ok) {
+        const responseData = await response.json();
+        const userEmail = user?.primaryEmailAddress?.emailAddress;
 
-      getCodesFromBE();
-      addPrompt([userMessage, response.data]);
+        const requestData = {
+          userMessage: {
+            ...userMessage,
+            email: userEmail,
+          },
+          responseData: {
+            ...responseData,
+            email: userEmail,
+          },
+        };
 
-      setPrompt("");
+        await fetch(`${process.env.NEXT_PUBLIC_API_URL}/codebot`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(requestData),
+        });
+
+        getCodesFromBE();
+        addPrompt([userMessage, responseData]);
+        setPrompt("");
+      } else {
+        console.log("Error:", response.statusText);
+      }
     } catch (error) {
       console.error(error);
     } finally {

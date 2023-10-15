@@ -36,9 +36,9 @@ export async function POST(req: Request) {
       messages: [customPrompt, ...messages],
     });
 
-    return NextResponse.json(response.data.choices[0].message);
+    return new Response(JSON.stringify(response.data.choices[0].message));
   } catch (error) {
     console.log(error);
-    return new NextResponse("An error occurred", { status: 500 });
+    return new Response("An error occurred", { status: 500 });
   }
 }
